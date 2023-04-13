@@ -15,9 +15,9 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path
-from btp.views import btp
+from btp.views import finCal
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('btp/<int:amount>/<int:time>/', btp)
+    path('finCal/<int:amount>/<int:time>/', finCal)
 ]
