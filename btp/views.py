@@ -23,6 +23,59 @@ def getRateonSocks(ticker_symbol):
     return rate
 
 
+def getFDrate(time):
+    # Fixed deposit interest rates for popular banks in India
+    fixed_deposit_interest_rates = {
+        "Average Interest Rate": {
+            "Regular Citizen": {
+                "7 Days to 45 Days": 2.90,
+                "46 Days to 179 Days": 3.90,
+                "180 Days to 210 Days": 4.40,
+                "211 Days to less than 1 Year": 4.40,
+                "1 Year to less than 2 Years": 4.90,
+                "2 Years to less than 3 Years": 4.90,
+                "3 Years to less than 5 Years": 5.40,
+                "5 Years and up to 10 Years": 5.40
+            },
+            "Senior Citizen": {
+                "7 Days to 45 Days": 3.40,
+                "46 Days to 179 Days": 4.40,
+                "180 Days to 210 Days": 4.90,
+                "211 Days to less than 1 Year": 4.90,
+                "1 Year to less than 2 Years": 5.40,
+                "2 Years to less than 3 Years": 5.40,
+                "3 Years to less than 5 Years": 5.90,
+                "5 Years and up to 10 Years": 5.90
+            }
+        }
+    }
+    # time is in years
+    if time < 0.2:
+        return fixed_deposit_interest_rates["Average Interest Rate"][
+            "Regular Citizen"]["7 Days to 45 Days"]
+    elif time < 0.5:
+        return fixed_deposit_interest_rates["Average Interest Rate"][
+            "Regular Citizen"]["46 Days to 179 Days"]
+    elif time < 0.58:
+        return fixed_deposit_interest_rates["Average Interest Rate"][
+            "Regular Citizen"]["180 Days to 210 Days"]
+    elif time < 1:
+        return fixed_deposit_interest_rates["Average Interest Rate"][
+            "Regular Citizen"]["211 Days to less than 1 Year"]
+    elif time < 2:
+        return fixed_deposit_interest_rates["Average Interest Rate"][
+            "Regular Citizen"]["1 Year to less than 2 Years"]
+    elif time < 3:
+        return fixed_deposit_interest_rates["Average Interest Rate"][
+            "Regular Citizen"]["2 Years to less than 3 Years"]
+    elif time < 5:
+        return fixed_deposit_interest_rates["Average Interest Rate"][
+            "Regular Citizen"]["3 Years to less than 5 Years"]
+    else:
+        return fixed_deposit_interest_rates["Average Interest Rate"][
+            "Regular Citizen"]["5 Years and up to 10 Years"]
+
+
 def calculateCompoundInterest(amount, rate, time):
     ci = amount * math.pow((1 + rate / 100), time)
     return ci
@@ -41,6 +94,7 @@ def finCal(request, amount, time):
         'Gold',
         'Silver',
     ]
+
     ticker_symbol = {}
     ticker_symbol['Nifty 50'] = '^NSEI'  # NIFTY 50
     ticker_symbol['Bank Nifty'] = '^NSEBANK'  # BANK NIFTY
@@ -51,10 +105,12 @@ def finCal(request, amount, time):
     rate = {}
     for i in ticker_symbol:
         rate[i] = getRateonSocks(ticker_symbol[i])
+    rate['Savings Account'] = 3.5
+    rate['Mutual Funds'] = 10
+    rate['Fixed Deposit'] = getFDrate(time)
     ci = {}
     for i in rate:
         ci[i] = calculateCompoundInterest(amount, rate[i], time)
-
     response_array = []
     for i in ci:
         response_array.append({
