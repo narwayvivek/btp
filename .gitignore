@@ -1,4 +1,4 @@
 
 ./venv
-./btp/__pycache__
+./btp/__pycache__/*
 ./btp/static
