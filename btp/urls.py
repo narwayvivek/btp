@@ -16,8 +16,17 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import path
 from btp.views import finCal
+from btp.views import sipCal
+from django.conf import settings
+from django.conf.urls.static import static
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('finCal/<int:amount>/<int:time>/', finCal)
+    path('finCal/<int:amount>/<int:time>/', finCal),
+    # integer amount and time and double rate
+    path('sip/<int:amount>/<int:time>/<str:rate>/', sipCal),
 ]
+
+if settings.DEBUG:
+    urlpatterns += static(settings.STATIC_URL,
+                          document_root=settings.STATIC_ROOT)

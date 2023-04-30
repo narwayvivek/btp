@@ -3,6 +3,13 @@ from rest_framework.response import Response
 import math
 import yfinance as yf
 import datetime
+import matplotlib
+
+matplotlib.use('Agg')
+import matplotlib.pyplot as plt
+import numpy as np
+import os
+import uuid
 
 
 def getRateonSocks(ticker_symbol):
@@ -81,6 +88,71 @@ def calculateCompoundInterest(amount, rate, time):
     return ci
 
 
+def createGraph(response):
+    #takes response and creats bar graph and pie chart and saves it in static folder and returns the path
+    """
+     [
+        "Instrument Name": "Saving Account",
+        "Rate": rate,
+        "Maturing Amount": ci],
+        [
+        "Instrument Name": "Fixed Deposit",
+        "Rate": rate,
+        "Maturing Amount": ci]
+    ]
+    """
+    #delete all previous images in static folder
+    # static_dir = os.path.abspath('./static/')
+    # for filename in os.listdir(static_dir):
+    #     if filename.startswith('bar3d') or filename.startswith('pie'):
+    #         os.remove(os.path.join(static_dir, filename))
+
+    instruments = []
+    return_amount = []
+    for i in response:
+        instruments.append(i['Instrument Name'])
+        return_amount.append(i['Maturing Amount'])
+    colors = [
+        '#FFC300', '#FF5733', '#C70039', '#900C3F', '#581845', '#0074D9',
+        '#2ECC40', '#FF851B', '#85144b'
+    ]
+    #bar 2D plot of return amount on different instruments
+    fig = plt.figure()
+    ax = fig.add_subplot(111)
+    ax.bar(instruments, return_amount, color=colors)
+    ax.set_ylabel('Return Amount')
+    ax.set_xlabel('Instruments')
+    ax.set_xticklabels(instruments, rotation=45)
+    ax.set_title('Return Amount on Different Instruments')
+
+    name1 = "./static/bar3d"
+    file_name1 = f"{name1}_{uuid.uuid4()}.png"
+    file_path1 = os.path.join(os.path.dirname(os.path.abspath(__file__)),
+                              file_name1)
+    plt.savefig(file_path1)
+    plt.close(fig)
+
+    #pie chart of return amount on different instruments
+    fig = plt.figure()
+    ax = fig.add_subplot(111)
+    ax.pie(return_amount,
+           labels=instruments,
+           autopct='%1.1f%%',
+           shadow=True,
+           startangle=90)
+    ax.axis('equal')
+    name2 = "./static/pie"
+    file_name2 = f"{name2}_{uuid.uuid4()}.png"
+    file_path2 = os.path.join(os.path.dirname(os.path.abspath(__file__)),
+                              file_name2)
+    plt.savefig(file_path2)
+    plt.close(fig)
+    resp = {}
+    resp['bar3d'] = file_name1.lstrip('./')
+    resp['pie'] = file_name2.lstrip('./')
+    return resp
+
+
 @api_view(['GET'])
 def finCal(request, amount, time):
     financialInstruments = [
@@ -140,4 +212,29 @@ def finCal(request, amount, time):
         "Financial Instruments": response_array
     }
 
+    graph_url = createGraph(response_array)
+    response['Graphs'] = graph_url
+    return Response(response)
+
+
+@api_view(['GET'])
+def sipCal(request, amount, time, rate):
+    """
+    This function takes in the monthly investment amount and the time period (in years) and calculate 
+    maturing amount for SIP
+    """
+    no_of_investments = time * 12
+    rate = float(rate)
+    periodic_rate = rate / 12
+    maturity_amount = amount * ((math.pow(
+        (1 + periodic_rate / 100), no_of_investments) - 1) /
+                                (periodic_rate / 100))
+    invested_amount = amount * no_of_investments
+    est_return = maturity_amount - invested_amount
+    total_value = maturity_amount
+    response = {
+        "Invested Amount": invested_amount,
+        "Estimated Return": est_return,
+        "Total Value": total_value
+    }
     return Response(response)
