@@ -101,11 +101,6 @@ def createGraph(response):
         "Maturing Amount": ci]
     ]
     """
-    #delete all previous images in static folder
-    # static_dir = os.path.abspath('./static/')
-    # for filename in os.listdir(static_dir):
-    #     if filename.startswith('bar3d') or filename.startswith('pie'):
-    #         os.remove(os.path.join(static_dir, filename))
 
     instruments = []
     return_amount = []
@@ -190,22 +185,23 @@ def finCal(request, amount, time):
             "Rate": rate[i],
             "Maturing Amount": ci[i]
         })
-    # json response with
-    # {
-    #     "Amount Invested": amount,
-    #     "Time": time,
-    #     { [
-    #         "Instrument Name": "Saving Account",
-    #         "Rate": rate,
-    #         "Maturing Amount": ci],
-    #         [
-    #         "Instrument Name": "Fixed Deposit",
-    #         "Rate": rate,
-    #         "Maturing Amount": ci],
+    """
+    json response with
+    {
+        "Amount Invested": amount,
+        "Time": time,
+        { [
+            "Instrument Name": "Saving Account",
+            "Rate": rate,
+            "Maturing Amount": ci],
+            [
+            "Instrument Name": "Fixed Deposit",
+            "Rate": rate,
+            "Maturing Amount": ci],
 
-    #     }
-    # }
-
+        }
+    }
+    """
     response = {
         "Amount Invested": amount,
         "Time": time,
@@ -215,6 +211,25 @@ def finCal(request, amount, time):
     graph_url = createGraph(response_array)
     response['Graphs'] = graph_url
     return Response(response)
+
+
+def createSIPGraph(invested_amount, est_return):
+    #pie chart of invested amount and estimated return
+    fig = plt.figure()
+    ax = fig.add_subplot(111)
+    ax.pie([invested_amount, est_return],
+           labels=['Invested Amount', 'Estimated Return'],
+           autopct='%1.1f%%',
+           shadow=True,
+           startangle=90)
+    ax.axis('equal')
+    name2 = "./static/sipPie"
+    file_name2 = f"{name2}_{uuid.uuid4()}.png"
+    file_path2 = os.path.join(os.path.dirname(os.path.abspath(__file__)),
+                              file_name2)
+    plt.savefig(file_path2)
+    plt.close(fig)
+    return file_name2.lstrip('./')
 
 
 @api_view(['GET'])
@@ -237,4 +252,7 @@ def sipCal(request, amount, time, rate):
         "Estimated Return": est_return,
         "Total Value": total_value
     }
+
+    graph_url = createSIPGraph(invested_amount, est_return)
+    response['Graphs'] = graph_url
     return Response(response)
