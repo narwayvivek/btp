@@ -249,14 +249,20 @@ def sipCal(request, amount, time, rate):
     maturity_amount = amount * ((math.pow(
         (1 + periodic_rate / 100), no_of_investments) - 1) /
                                 (periodic_rate / 100))
+    #truncate to 2 decimal places
+    maturity_amount = math.floor(maturity_amount * 100) / 100
+
     invested_amount = amount * no_of_investments
     est_return = maturity_amount - invested_amount
+    #truncate to 2 decimal places
+    est_return = math.floor(est_return * 100) / 100
     total_value = maturity_amount
     response = {
         "Invested Amount": invested_amount,
         "Estimated Return": est_return,
         "Total Value": total_value
     }
+    print(maturity_amount, invested_amount, est_return, total_value)
 
     graph_url = createSIPGraph(invested_amount, est_return)
     response['Graphs'] = graph_url
