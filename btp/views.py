@@ -26,7 +26,8 @@ def getRateonSocks(ticker_symbol):
 
     rate = closing_prices[-1] / closing_prices[0]
     rate = math.pow(rate, 1 / years) - 1
-    rate = rate * 100
+    #truncate to 2 decimal places
+    rate = math.trunc(rate * 100)
     return rate
 
 
@@ -85,6 +86,8 @@ def getFDrate(time):
 
 def calculateCompoundInterest(amount, rate, time):
     ci = amount * math.pow((1 + rate / 100), time)
+    #truncate to 2 decimal places
+    ci = math.trunc(ci * 100) / 100
     return ci
 
 
@@ -149,7 +152,7 @@ def createGraph(response):
 
 
 @api_view(['GET'])
-def finCal(request, amount, time):
+def finCal(request, amount, years, months):
     financialInstruments = [
         'Savings Account',
         'Fixed Deposit',
@@ -161,6 +164,8 @@ def finCal(request, amount, time):
         'Gold',
         'Silver',
     ]
+
+    time = years + months / 12
 
     ticker_symbol = {}
     ticker_symbol['Nifty 50'] = '^NSEI'  # NIFTY 50

@@ -22,7 +22,7 @@ from django.conf.urls.static import static
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('finCal/<int:amount>/<int:time>/', finCal),
+    path('finCal/<int:amount>/<int:years>/<int:months>/', finCal),
     # integer amount and time and double rate
     path('sip/<int:amount>/<int:time>/<str:rate>/', sipCal),
 ]
