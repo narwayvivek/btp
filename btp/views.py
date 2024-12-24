@@ -32,7 +32,7 @@ def getRateonSocks(ticker_symbol):
 
 
 def getFDrate(time):
-    # Fixed deposit interest rates for popular banks in India
+    # Fixed deposit interest rates for popular banks in India (SBI Data)
     fixed_deposit_interest_rates = {
         "Average Interest Rate": {
             "Regular Citizen": {
